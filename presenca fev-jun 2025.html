@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Controle de Presença Maçônica</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px }
+        .tabs { margin-bottom: 20px }
+        .tablink {
+            padding: 10px 20px;
+            margin-right: 5px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background: #f0f0f0;
+            border-radius: 5px 5px 0 0;
+        }
+        .tablink.active {
+            background: #fff;
+            border-bottom: 1px solid #fff;
+        }
+        .mes-content {
+            display: none;
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+        .mes-content.active {
+            display: block;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .presente { background-color: #90EE90 }
+        .falta { background-color: #FFB6C1 }
+        .resumo {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f8f8;
+        }
+        .save-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .save-button:hover {
+            background-color: #0056b3;
+        }
+        .manual-input {
+            width: 50px;
+            padding: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Controle de Presenças 🏛️</h1>
+    
+    <div class="tabs" id="tabs"></div>
+    <div id="meses-container"></div>
+    <div class="resumo">
+        <h2>Resumo do 1º Semestre</h2>
+        <table id="tabela-resumo">
+            <tr><th>Membro</th><th>Grau</th><th>Presenças Atuais</th><th>% Atual</th><th>% Últimos 6 Meses</th><th>% Geral</th></tr>
+        </table>
+    </div>
+    <button class="save-button" onclick="salvarDados()">Salvar Alterações</button>
+
+<script>
+// Configuração inicial
+const membros = [
+    { nome: "ANDRÉ ROBERTO CAVICCHIA", grau: "Mestre" },
+    { nome: "ANDRÉ VANDERLEI VICENTINI", grau: "Companheiro" },
+    { nome: "ANGELO SILVANO GIOMO", grau: "Mestre" },
+    { nome: "ANTONIO APARECIDO PINHEIRO", grau: "Mestre" },
+    { nome: "ANTONIO BONETO JUNIOR", grau: "Mestre" },
+    { nome: "ANTONIO FRANCISCO ALVES JUNIOR", grau: "Mestre" },
+    { nome: "ANTONIO HONÓRIO FILHO", grau: "Mestre" },
+    { nome: "ARCÍLO JOSÉ BARBIN", grau: "Mestre" },
+    { nome: "CÉSAR RICARDO ARIOLI", grau: "Aprendiz" },
+    { nome: "CLEBER ALEX BUENO PORTAPILA", grau: "Mestre" },
+    { nome: "CLOVIS ROBERTO CASSIANI", grau: "Aprendiz" },
+    { nome: "DUARCIDES FERREIRA MARIOSA", grau: "Mestre" },
+    { nome: "EDISON ZINI", grau: "Mestre" },
+    { nome: "EDUARDO DE ANDRADE", grau: "Mestre" },
+    { nome: "ENIO FERNANDES SANTOS", grau: "Mestre" },
+    { nome: "FÁBIO LUIZ POCAI", grau: "Mestre" },
+    { nome: "GUILHERME BACCARELLI SAVARIEGO", grau: "Mestre" },
+    { nome: "IRINEU VALENTIM TONELOTTO", grau: "Mestre" },
+    { nome: "JOÃO BERTONI NETO", grau: "Aprendiz" },
+    { nome: "JORGE PINHEIRO DE SOUZA FILHO", grau: "Mestre" },
+    { nome: "JOSÉ ALCIDES ALMEIDA TEIXEIRA", grau: "Mestre" },
+    { nome: "JOSÉ EDUARDO CARLOTTI", grau: "Aprendiz" },
+    { nome: "JOSÉ FABIO MARIANO MARTINS", grau: "Mestre" },
+    { nome: "JOSÉ MARCOS VIEIRA ROCHA", grau: "Mestre" },
+    { nome: "JOSÉ ROBERTO PEDROSO ALVES", grau: "Mestre" },
+    { nome: "LEANDRO APARECIDO DE TOLEDO CAMILOTI", grau: "Mestre" },
+    { nome: "LEANDRO DE PADUA RUSSO", grau: "Mestre" },
+    { nome: "LEONARDO CAMARGO JUNIOR", grau: "Mestre" },
+    { nome: "LEONARDO HENRIQUE CIRINO", grau: "Mestre" },
+    { nome: "LOURIVAL ACACIO BARBIM", grau: "Mestre" },
+    { nome: "LUÍS CARLOS SITTA", grau: "Mestre" },
+    { nome: "LUIS FERNANDO HONÓRIO", grau: "Mestre" },
+    { nome: "LUIZ ANTONIO ALVARENGA BRAGA", grau: "Mestre" },
+    { nome: "MARCELO BASSAN", grau: "Mestre" },
+    { nome: "MARCELO JOSÉ PEDROSO", grau: "Mestre" },
+    { nome: "MARCELO MAZARIN BICUDO", grau: "Mestre" },
+    { nome: "MARCIO VILLALVA", grau: "Aprendiz" },
+    { nome: "MARCO ALEXANDRE GOTARDELO", grau: "Mestre" },
+    { nome: "MARIO JOSÉ AMIDEN", grau: "Mestre" },
+    { nome: "MÁRIO LUIZ BROGLIO", grau: "Mestre" },
+    { nome: "PAULO APARECIDO BALDASSO", grau: "Mestre" },
+    { nome: "PAULO CESAR MENZANI", grau: "Aprendiz" },
+    { nome: "PAULO JOSÉ FELICIANO FERNANDES", grau: "Aprendiz" },
+    { nome: "PAULO ROBERTO ZAVANELLA", grau: "Mestre" },
+    { nome: "Paulo Rodrigo Bento", grau: "Aprendiz" },
+    { nome: "RODRIGO FORCATO", grau: "Mestre" },
+    { nome: "RODRIGO TONELOTTO", grau: "Mestre" },
+    { nome: "SANDRO RICARDO ALTHMAN", grau: "Aprendiz" },
+    { nome: "SILVIO LUIS BUZO", grau: "Aprendiz" },
+    { nome: "TIAGO PERIN FORNER", grau: "Companheiro" },
+    { nome: "VALDIR BASSETO", grau: "Mestre" },
+    { nome: "VALTER JOSÉ SACCHI", grau: "Mestre" },
+    { nome: "VITOR AUGUSTO MARCHIORI DE OLIVEIRA", grau: "Mestre" },
+    { nome: "WALDIR BERLOFA", grau: "Mestre" }
+];
+const feriados = ['2024-01-01', '2024-04-21'];
+let mesAtivo = 0;
+
+// Datas das sessões personalizadas (Fevereiro a Junho)
+const sessoesPersonalizadas = [
+    "2024-02-06", "2024-02-13", "2024-02-20", "2024-02-27", // Fevereiro
+    "2024-03-06", "2024-03-13", "2024-03-20", "2024-03-27", // Março
+    "2024-04-03", "2024-04-10", "2024-04-24",              // Abril
+    "2024-05-09", "2024-05-15", "2024-05-22", "2024-05-29", // Maio
+    "2024-06-05", "2024-06-12", "2024-06-26"               // Junho
+];
+
+// Regras de sessões exclusivas por grau
+const sessoesExclusivas = {
+    "2024-02-27": ["Companheiro", "Mestre"], // Somente Companheiros e Mestres
+    "2024-03-27": ["Mestre"],               // Somente Mestres
+    "2024-05-15": ["Mestre"]                // Somente Mestres
+};
+
+class App {
+    constructor() {
+        this.dados = JSON.parse(localStorage.getItem('dadosPresenca')) || {};
+        this.porcentagensManuais = JSON.parse(localStorage.getItem('porcentagensManuais')) || {};
+        this.sessoes = sessoesPersonalizadas;
+        this.init();
+    }
+    init() {
+        this.criarAbas();
+        this.criarMeses();
+        this.atualizarResumo();
+    }
+    criarAbas() {
+        const tabs = document.getElementById('tabs');
+        const meses = ["Fevereiro", "Março", "Abril", "Maio", "Junho"];
+        meses.forEach((mes, index) => {
+            const button = document.createElement('button');
+            button.className = 'tablink' + (index === 0 ? ' active' : '');
+            button.textContent = mes;
+            button.onclick = () => this.mostrarMes(index);
+            tabs.appendChild(button);
+        });
+    }
+    criarMeses() {
+        const container = document.getElementById('meses-container');
+        const meses = ["Fevereiro", "Março", "Abril", "Maio", "Junho"];
+        meses.forEach((mes, index) => {
+            const div = document.createElement('div');
+            div.className = 'mes-content' + (index === 0 ? ' active' : '');
+            div.id = `mes-${index}`;
+            div.innerHTML = `<h3>${mes} - 2024</h3>`;
+            this.criarTabelaMes(index, div);
+            container.appendChild(div);
+        });
+    }
+    criarTabelaMes(mesIndex, container) {
+        const table = document.createElement('table');
+        const thead = document.createElement('tr');
+        thead.innerHTML = '<th>Data</th>' + membros.map(m => `<th>${m.nome}</th>`).join('');
+        table.appendChild(thead);
+        this.sessoes
+            .filter(d => new Date(d).getMonth() === mesIndex + 1) // Filtra pelo mês correto
+            .forEach(data => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${new Date(data).toLocaleDateString()}</td>` +
+                    membros.map((membro, i) => {
+                        const valor = this.dados[data] && this.dados[data][i] ? 'P' : '';
+                        const podeParticipar = this.verificarParticipacao(data, membro.grau);
+                        return `<td class="celula ${valor ? 'presente' : ''}" 
+                                  contenteditable="${podeParticipar}" 
+                                  oninput="app.atualizarPresenca(event, '${data}', ${i})">${valor}</td>`;
+                    }).join('');
+                table.appendChild(tr);
+            });
+        container.appendChild(table);
+    }
+    verificarParticipacao(data, grau) {
+        if (sessoesExclusivas[data]) {
+            return sessoesExclusivas[data].includes(grau);
+        }
+        return true; // Todos podem participar se não for uma sessão exclusiva
+    }
+    mostrarMes(mes) {
+        document.querySelectorAll('.tablink').forEach((b, i) => {
+            b.classList.toggle('active', i === mes);
+        });
+        document.querySelectorAll('.mes-content').forEach((div, i) => {
+            div.classList.toggle('active', i === mes);
+        });
+        mesAtivo = mes;
+    }
+    atualizarPresenca(event, data, membroIndex) {
+        const valor = event.target.textContent.toUpperCase();
+        event.target.className = `celula ${valor === 'P' ? 'presente' : valor === 'F' ? 'falta' : ''}`;
+        event.target.textContent = valor === 'P' || valor === 'F' ? valor : '';
+        if (!this.dados[data]) this.dados[data] = {};
+        this.dados[data][membroIndex] = valor === 'P';
+        this.atualizarResumo();
+    }
+    atualizarResumo() {
+        const tabela = document.getElementById('tabela-resumo');
+        tabela.innerHTML = '<tr><th>Membro</th><th>Grau</th><th>Presenças Atuais</th><th>% Atual</th><th>% Últimos 6 Meses</th><th>% Geral</th></tr>';
+        membros.forEach((membro, index) => {
+            const totalAtual = Object.keys(this.dados)
+                .filter(data => this.verificarParticipacao(data, membro.grau)) // Filtra sessões válidas para o grau
+                .filter(data => this.dados[data][index])
+                .length;
+            const totalSessoesValidas = this.sessoes.filter(data => this.verificarParticipacao(data, membro.grau)).length;
+            const porcentagemAtual = ((totalAtual / totalSessoesValidas) * 100).toFixed(1);
+            const porcentagemManual = this.porcentagensManuais[membro.nome] || 0;
+            const porcentagemGeral = (((parseFloat(porcentagemAtual) + parseFloat(porcentagemManual)) / 2)).toFixed(1);
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${membro.nome}</td>
+                <td>${membro.grau}</td>
+                <td>${totalAtual}</td>
+                <td>${porcentagemAtual}%</td>
+                <td><input type="number" class="manual-input" value="${porcentagemManual}" oninput="app.atualizarPorcentagemManual('${membro.nome}', this.value)"></td>
+                <td>${porcentagemGeral}%</td>
+            `;
+            tabela.appendChild(tr);
+        });
+    }
+    atualizarPorcentagemManual(membro, valor) {
+        this.porcentagensManuais[membro] = parseFloat(valor) || 0;
+        this.atualizarResumo();
+    }
+}
+function salvarDados() {
+    localStorage.setItem('dadosPresenca', JSON.stringify(app.dados));
+    localStorage.setItem('porcentagensManuais', JSON.stringify(app.porcentagensManuais));
+    alert('Alterações salvas com sucesso!');
+}
+const app = new App();
+</script>
+</body>
+</html>
